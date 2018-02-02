@@ -1,0 +1,6 @@
+{
+	"site": {
+		"title": "Garlic Pools"
+	},
+	"api": "https://watchdog.garli.co.in/api/v1/stats"
+}
