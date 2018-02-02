@@ -10,14 +10,20 @@ class PoolList extends React.Component {
 		this.state = {
 			pools: [],
 			totalRate: 0,
-			width: window.innerWidth
+			width: window.innerWidth,
+			error: false
 		}
 	};
 	componentDidMount () {
 		window.addEventListener('resize', () => { 
 			this.setState({ width: window.innerWidth });
 		});
-		this.fetchData(() => {
+		this.fetchData((err) => {
+			if (err) {
+				this.setState({ error: true });
+				return;
+			}
+			
 			let rate = 0;
 			for (var index in this.state.pools) {
 				// Skip prototypes and such
@@ -58,13 +64,21 @@ class PoolList extends React.Component {
 				this.setState({ api: api, pools: pools }, cb);
 			})
 			.catch((error) => {
+				cb(error);
 				console.error(error);
 			});
 	};
 	render() {
 		const isMobile = this.state.width <= 768;
-
-		if (isMobile) {
+		
+		if (this.state.error) {
+			return (
+				<div>
+					<p>Oops, something went wrong... Please try again.</p>
+				</div>
+			);
+		}
+		else if (isMobile) {
 			return (
 				<div>
 					{this.state.pools.map((data, index) =>
