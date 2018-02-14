@@ -42,7 +42,7 @@ class ListItem extends React.Component {
 	renderTable() {
 		return (
 			<tr>
-				<td><a href={this.state.data.pool.website}>{this.state.data.pool.name}</a></td>
+				<td><a href={'/pool/' + this.state.data.pool.id}>{this.state.data.pool.name}</a></td>
 				<td>{Helper.convertToReadable(this.state.latest.data.hashrate)}</td>
 				<td>{this.state.latest.data.ping}</td>
 				<td>{this.state.latest.data.workers}</td>

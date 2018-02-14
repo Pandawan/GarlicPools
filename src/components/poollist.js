@@ -1,8 +1,9 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { poolsFetchData } from '../actions/pools';
 
 import ListItem from './listitem';
 import BoxItem from './boxitem';
-import Helper from '../helpers';
 
 class PoolList extends React.Component {
 	constructor () {
@@ -11,6 +12,7 @@ class PoolList extends React.Component {
 			pools: [],
 			totalRate: 0,
 			width: window.innerWidth,
+			loading: false,
 			error: false
 		}
 	};
@@ -18,60 +20,24 @@ class PoolList extends React.Component {
 		window.addEventListener('resize', () => { 
 			this.setState({ width: window.innerWidth });
 		});
-		this.fetchData((err) => {
-			if (err) {
-				this.setState({ error: true });
-				return;
-			}
-			
-			let rate = 0;
-			for (var index in this.state.pools) {
-				// Skip prototypes and such
-				if (!this.state.pools.hasOwnProperty(index)) continue;
-
-				// eslint-disable-next-line
-				Helper.getLatestStats(this.state.pools[index].stats, (newLatest) => {
-					rate += (newLatest.data) ? newLatest.data.hashrate : 0;
-				});
-			}
-			this.setState({totalRate: rate});
-		});
+		this.props.fetchData(this.props.data.api);
 	};
 	componentWillUnmount() {
 		window.removeEventListener('resize', () => { 
 			this.setState({ width: window.innerWidth });
 		});
 	};
- 	fetchData(cb) {
-		const api = this.props.data.api;
-		// Fetch data from API
-		fetch(api)
-			.then((response) => response.json())
-			.then((responseJson) => {
-				if (!responseJson.success) console.error('Something went wrong...');
-
-				// Create a list of pools from data
-				let pools = [];
-				for (let index in responseJson.data) {
-					// Skip prototypes and such
-					if (!responseJson.data.hasOwnProperty(index)) continue;
-
-					// Get pool and add it to array
-					let pool = responseJson.data[index];
-					pools.push(pool);
-				}
-				// Set in state so that everything is saved
-				this.setState({ api: api, pools: pools }, cb);
-			})
-			.catch((error) => {
-				cb(error);
-				console.error(error);
-			});
-	};
 	render() {
 		const isMobile = this.state.width <= 768;
-		
-		if (this.state.error) {
+
+		if (this.props.loading || !this.props.pools) {
+			return (
+				<div>
+					<p>Loading...</p>
+				</div>
+			);
+		}
+		else if (this.props.error || !this.props.pools.success) {
 			return (
 				<div>
 					<p>Oops, something went wrong... Please try again.</p>
@@ -81,8 +47,8 @@ class PoolList extends React.Component {
 		else if (isMobile) {
 			return (
 				<div>
-					{this.state.pools.map((data, index) =>
-						<BoxItem data={data} key={index} totalRate={this.state.totalRate}/>
+					{this.props.pools.array.map((data, index) =>
+						<BoxItem data={data} key={index}/>
 					)}
 				</div>
 			);
@@ -103,8 +69,8 @@ class PoolList extends React.Component {
 							</tr>
 						</thead>
 						<tbody>
-							{this.state.pools.map((data, index) =>
-								<ListItem data={data} key={index} mobile={false} totalRate={this.state.totalRate}/>
+							{this.props.pools.array.map((data, index) =>
+								<ListItem data={data} key={index} mobile={false}/>
 							)}
 						</tbody>
 					</table>
@@ -114,4 +80,17 @@ class PoolList extends React.Component {
 	};
 }
 
-export default PoolList;
+const mapStateToProps = (state) => {
+    return {
+        pools: state.pools,
+        error: state.poolsHasErrored,
+        loading: state.poolsIsLoading
+    };
+};
+const mapDispatchToProps = (dispatch) => {
+    return {
+        fetchData: (url) => dispatch(poolsFetchData(url))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PoolList);
