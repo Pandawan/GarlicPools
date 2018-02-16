@@ -30,14 +30,14 @@ class PoolList extends React.Component {
 	render() {
 		const isMobile = this.state.width <= 768;
 
-		if (this.props.loading || !this.props.pools) {
+		if (this.props.loading || !this.props.pools || !this.props.pools.success) {
 			return (
 				<div>
 					<p>Loading...</p>
 				</div>
 			);
 		}
-		else if (this.props.error || !this.props.pools.success) {
+		else if (this.props.error) {
 			return (
 				<div>
 					<p>Oops, something went wrong... Please try again.</p>
