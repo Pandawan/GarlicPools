@@ -15,6 +15,7 @@ import store, { history } from './store'
 import registerServiceWorker from './registerServiceWorker';
 
 import App from './App';
+import './index.css';
 
 const target = document.querySelector('#root');
 

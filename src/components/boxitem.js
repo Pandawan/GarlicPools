@@ -1,5 +1,6 @@
 import React from 'react';
 import Helper from '../helpers';
+import { Link } from 'react-router-dom';
 
 class BoxItem extends React.Component {
 	constructor(props) {
@@ -43,7 +44,7 @@ class BoxItem extends React.Component {
 		return (
 			<div className='card'>
 				<div className='card-header'>
-					<h3 className='card-header-title is-h3'><a href={this.state.data.pool.website}>{this.state.data.pool.name}</a></h3>
+					<h3 className='card-header-title is-h3'><Link to={'/pool/' + this.state.data.pool.id}>{this.state.data.pool.name}</Link></h3>
 				</div>
 				<div className='card-content'>
 					<ul>

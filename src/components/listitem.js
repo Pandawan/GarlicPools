@@ -1,5 +1,6 @@
 import React from 'react';
 import Helper from '../helpers';
+import { Link } from 'react-router-dom';
 
 class ListItem extends React.Component {
 	constructor(props) {
@@ -42,7 +43,7 @@ class ListItem extends React.Component {
 	renderTable() {
 		return (
 			<tr>
-				<td><a href={'/pool/' + this.state.data.pool.id}>{this.state.data.pool.name}</a></td>
+				<td><Link to={'/pool/' + this.state.data.pool.id}>{this.state.data.pool.name}</Link></td>
 				<td>{Helper.convertToReadable(this.state.latest.data.hashrate)}</td>
 				<td>{this.state.latest.data.ping}</td>
 				<td>{this.state.latest.data.workers}</td>

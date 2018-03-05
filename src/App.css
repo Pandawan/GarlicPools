@@ -8,3 +8,13 @@
 .section {
 	padding-top: 3.5em !important;
 }
+
+.pool-header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.close-button {
+	font-size: 2rem;
+	color: grey;
+}
