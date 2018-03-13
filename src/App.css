@@ -18,3 +18,18 @@
 	font-size: 2rem;
 	color: grey;
 }
+
+.pool-info-section {
+	margin: 1em auto;
+}
+
+
+.data-plots {
+	max-width: 90%;
+}
+
+@media (max-width: 768px) {
+	.pool-info-plots {
+		display: none;
+	}
+}
