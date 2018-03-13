@@ -4,6 +4,7 @@ import React from 'react';
 import Helper from '../helpers';
 import { Link } from 'react-router-dom';
 import createPlotlyComponent from 'react-plotly.js/factory';
+import update from 'immutability-helper';
 
 // Import font awesome icons
 import fontawesome from '@fortawesome/fontawesome';
@@ -23,27 +24,41 @@ class PoolInfo extends React.Component {
 	componentDidMount () {
 		Helper.getLatestStats(this.props.data.stats, (newLatest) => {
 			this.setState({ latest: newLatest });
-			this.getPlotData();
+			this.getPlotData(() => {
+				// Resize once plot data has been made
+				this.setupPlotResize();
+			});
 		});
 	};
-	getPlotData() {
-		const plotData = { data: { hashrate: [], workers: [], ping: []}, layout: { plotBackground: '#f3f6fa', margin: {t: 40, b: 35}, xaxis: { type: 'date' }, yaxis: { tickformat: 's', type: 'linear' } } };
+	getPlotData(cb) {
+		let plotData = { data: { hashrate: [], workers: [], ping: []}, layout: { plotBackground: '#f3f6fa', margin: {t: 40, b: 35}, xaxis: { type: 'date' }, yaxis: { tickformat: 's', type: 'linear' } } };
 		// Hashrate plot
 		let hashrateResults = Object.values(this.props.data.stats).map(a => a.hashrate);
-		plotData.data.hashrate.push({ x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: hashrateResults, hovertext: hashrateResults.map(a => Helper.convertToReadable(a)), hoverinfo: 'text' } );
+		plotData.data.hashrate.push({ title: 'Hashrate', x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: hashrateResults, hovertext: hashrateResults.map(a => Helper.convertToReadable(a)), hoverinfo: 'text' } );
 		// Workers
 		let workersResults = Object.values(this.props.data.stats).map(a => a.workers);
-		plotData.data.workers.push({ x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: workersResults});
+		plotData.data.workers.push({ title: 'Workers', x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: workersResults});
 		// Ping
 		let pingResults = Object.values(this.props.data.stats).map(a => a.ping);
-		plotData.data.ping.push({ x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: pingResults});
+		plotData.data.ping.push({ title: 'Ping', x: Object.keys(this.props.data.stats).map(a => new Date(parseInt(a * 1000, 10))), y: pingResults});
 
-		this.setState({plotData: plotData});
+		this.setState({plotData: plotData}, cb);
+	};
+	setupPlotResize() {
+		// Add auto-resizing of plot
+		let resizePlots = function () {
+			let width = document.querySelector('main.section').getBoundingClientRect().width;
+			let plotData = update(this.state.plotData, { layout: { width: { $set: width * 0.9 } } });
+			this.setState({plotData: plotData});
+		}.bind(this);
+		window.addEventListener('resize', resizePlots);
+		resizePlots();
 	};
 	updateLabels() {
 
 	};
 	render() {
+		console.log('render');
 		const { latest } = this.state;
 		if (latest.done) {
 			if (latest.data) {
@@ -58,15 +73,15 @@ class PoolInfo extends React.Component {
 							<p className='pool-info-owner'></p>
 						</div>
 						<div className='pool-info-section pool-info-latest'>
-							<p className='pool-info-hashrate'>Current hashrate {Helper.convertToReadable(latest.data.hashrate)}</p>
-							<p className='pool-info-hashrate'>Current workers {latest.data.workers}</p>
-							<p className='pool-info-hashrate'>Current ping {latest.data.ping}</p>
+							<p className='pool-info-hashrate'>Current hashrate: {Helper.convertToReadable(latest.data.hashrate)}</p>
+							<p className='pool-info-hashrate'>Current workers: {latest.data.workers}</p>
+							<p className='pool-info-hashrate'>Current ping: {latest.data.ping}</p>
 						</div>
 						<div className='pool-info-section pool-info-plots'>
 							<h1>Past Data</h1>
-							<Plot className='data-plots' data={this.state.plotData.data.hashrate} layout={this.state.plotData.layout} config={{displayModeBar: false}} onRelayout={this.updateLabels()}/>
-							<Plot className='data-plots' data={this.state.plotData.data.workers} layout={this.state.plotData.layout} config={{displayModeBar: false}} onRelayout={this.updateLabels()}/>
-							<Plot className='data-plots' data={this.state.plotData.data.ping} layout={this.state.plotData.layout} config={{displayModeBar: false}} onRelayout={this.updateLabels()}/>
+							<Plot className='data-plots' data={this.state.plotData.data.hashrate} layout={this.state.plotData.layout} config={{displayModeBar: true}} onRelayout={this.updateLabels()}/>
+							<Plot className='data-plots' data={this.state.plotData.data.workers} layout={this.state.plotData.layout} config={{displayModeBar: true}} onRelayout={this.updateLabels()}/>
+							<Plot className='data-plots' data={this.state.plotData.data.ping} layout={this.state.plotData.layout} config={{displayModeBar: true}} onRelayout={this.updateLabels()}/>
 						</div>
 						<pre>{JSON.stringify(this.props.data, null, '\t')}</pre>
 					</div>
