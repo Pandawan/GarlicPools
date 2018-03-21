@@ -63,9 +63,7 @@ class PoolList extends React.Component {
 								<th>Hashrate</th>
 								<th>Ping</th>
 								<th>Workers</th>
-								<th>% of Total</th>
 								<th>Fee</th>
-								<th>Owner(s)</th>
 							</tr>
 						</thead>
 						<tbody>

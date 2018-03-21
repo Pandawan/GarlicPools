@@ -47,9 +47,7 @@ class ListItem extends React.Component {
 				<td>{Helper.convertToReadable(this.state.latest.data.hashrate)}</td>
 				<td>{this.state.latest.data.ping}</td>
 				<td>{this.state.latest.data.workers}</td>
-				<td>{this.state.latest.data.hashrate ? (Math.round(this.state.latest.data.hashrate / this.props.totalRate * 100)) : 0}%</td>
 				<td>{this.state.data.pool.fee}%</td>
-				<td>{this.state.data.pool.owner}</td>
 			</tr>
 		);
 	};
